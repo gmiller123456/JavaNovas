@@ -53,8 +53,8 @@ public class Novas {
 
     public static class object
     {
-        short type;
-        short number;
+        int type;
+        int number;
         String name;
         cat_entry star;
     }
@@ -117,7 +117,7 @@ public class Novas {
 
     public static class observer
     {
-        short where;
+        int where;
         on_surface on_surf;
         in_space near_earth;
     }
@@ -2966,7 +2966,7 @@ public class Novas {
 ------------------------------------------------------------------------
 */ {
         int error = 0;
-        short rs;
+        IntP rs=new IntP();
 
         double t1;
         DoubleP t=new DoubleP();
@@ -3036,7 +3036,7 @@ public class Novas {
             if ((error = cio_location(t1, accuracy, r_cio,rs))!=0)
             return (error += 10);
 
-            if ((error = cio_basis(t1, r_cio, rs, accuracy, x, y, z)) != 0)
+            if ((error = cio_basis(t1, r_cio.v, rs.v, accuracy, x, y, z)) != 0)
                 return (error += 20);
 
 /*
@@ -3065,8 +3065,8 @@ public class Novas {
 /********sidereal_time */
 
     public static int sidereal_time(double jd_high, double jd_low,
-                      double delta_t, short gst_type,
-                      short method, short accuracy, DoubleP gst)
+                      double delta_t, int gst_type,
+                      int method, int accuracy, DoubleP gst)
 /*
 ------------------------------------------------------------------------
 
@@ -3160,7 +3160,7 @@ public class Novas {
 ------------------------------------------------------------------------
 */ {
         int error = 0;
-        short ref_sys;
+        IntP ref_sys=new IntP();
 
         double jd_last = -99.0;
         double[] unitx={
@@ -3251,7 +3251,7 @@ public class Novas {
                 return (error += 10);
             }
 
-            cio_basis(jd_tdb, ra_cio.v, ref_sys, accuracy, x, y, z);
+            cio_basis(jd_tdb, ra_cio.v, ref_sys.v, accuracy, x, y, z);
 
 /*
    Compute the direction of the true equinox in the GCRS.
@@ -3510,9 +3510,11 @@ public class Novas {
 ------------------------------------------------------------------------
 */ {
         int error = 0;
-        short rs, j;
+        IntP rs=new IntP();
+        short j;
 
-        double jd_ut1, jd_tt, jd_tdb, gast, theta;
+        double jd_ut1, jd_tt, jd_tdb, theta;
+        DoubleP gast=new DoubleP();
         DoubleP r_cio=new DoubleP();
         DoubleP dummy=new DoubleP();
         DoubleP secdiff=new DoubleP();
@@ -3575,7 +3577,7 @@ public class Novas {
                 if ((error = cio_location(jd_tdb, accuracy, r_cio,rs))!=0)
                 return (error += 10);
 
-            if ((error = cio_basis(jd_tdb, r_cio.v, rs, accuracy, x, y, z)) != 0)
+            if ((error = cio_basis(jd_tdb, r_cio.v, rs.v, accuracy, x, y, z)) != 0)
                 return (error += 20);
 
 /*
@@ -3616,7 +3618,7 @@ public class Novas {
 */
 
                 sidereal_time(jd_ut_high, jd_ut_low, delta_t, 1, 1, accuracy, gast);
-                spin(-gast * 15.0, v1, v2);
+                spin(-gast.v * 15.0, v1, v2);
 
 /*
    'option' = 1 skips remaining transformations.
@@ -3652,9 +3654,7 @@ public class Novas {
 
 /********cel2ter */
 
-    short
-
-    int cel2ter(double jd_ut_high, double jd_ut_low, double delta_t,
+    public static int cel2ter(double jd_ut_high, double jd_ut_low, double delta_t,
                 short method, short accuracy, short option,
                 double xp, double yp, double[] vec1, double[] vec2)
 /*
@@ -3751,9 +3751,14 @@ public class Novas {
 ------------------------------------------------------------------------
 */ {
         int error = 0;
-        short rs, j;
+        IntP rs=new IntP();
+        int j;
 
-        double jd_ut1, jd_tt, dummy, secdiff, jd_tdb, gast, r_cio, theta;
+        double jd_ut1, jd_tt, jd_tdb, theta;
+        DoubleP gast=new DoubleP();
+        DoubleP r_cio=new DoubleP();
+        DoubleP dummy=new DoubleP();
+        DoubleP secdiff=new DoubleP();
         double[] v1=new double[3];
         double[] v2=new double[3];
         double[] v3=new double[3];
@@ -3784,7 +3789,7 @@ public class Novas {
 
         jd_tdb = jd_tt;
         tdb2tt(jd_tdb, dummy,secdiff);
-        jd_tdb = jd_tt + secdiff / 86400.0;
+        jd_tdb = jd_tt + secdiff.v / 86400.0;
 
         switch (method) {
             case (0):
@@ -3798,10 +3803,10 @@ public class Novas {
    system.
 */
 
-                if ((error = cio_location(jd_tdb, accuracy, & r_cio,&rs))!=0)
+                if ((error = cio_location(jd_tdb, accuracy, r_cio, rs))!=0)
                 return (error += 10);
 
-            if ((error = cio_basis(jd_tdb, r_cio, rs, accuracy, x, y, z)) != 0)
+            if ((error = cio_basis(jd_tdb, r_cio.v, rs.v, accuracy, x, y, z)) != 0)
                 return (error += 20);
 
 /*
@@ -3861,8 +3866,8 @@ public class Novas {
    Apply Earth rotation.
 */
 
-                sidereal_time(jd_ut_high, jd_ut_low, delta_t, 1, 1, accuracy, & gast);
-                spin(gast * 15.0, v3, v4);
+                sidereal_time(jd_ut_high, jd_ut_low, delta_t, 1, 1, accuracy, gast);
+                spin(gast.v * 15.0, v3, v4);
 
 /*
    Apply polar motion.
@@ -3946,28 +3951,23 @@ public class Novas {
         double xx, yx, zx, xy, yy, zy, xz, yz, zz;
         double angr, cosang, sinang;
 
-        if (abs(angle - ang_last) >= 1.0e-12) {
-            angr = angle * DEG2RAD;
-            cosang = cos(angr);
-            sinang = sin(angr);
+        angr = angle * DEG2RAD;
+        cosang = cos(angr);
+        sinang = sin(angr);
 
 /*
-   Rotation matrix follows.
+Rotation matrix follows.
 */
 
-            xx = cosang;
-            yx = sinang;
-            zx = 0.0;
-            xy = -sinang;
-            yy = cosang;
-            zy = 0.0;
-            xz = 0.0;
-            yz = 0.0;
-            zz = 1.0;
-
-            ang_last = angle;
-        }
-
+        xx = cosang;
+        yx = sinang;
+        zx = 0.0;
+        xy = -sinang;
+        yy = cosang;
+        zy = 0.0;
+        xz = 0.0;
+        yz = 0.0;
+        zz = 1.0;
 /*
    Perform rotation.
 */
@@ -4268,7 +4268,7 @@ public class Novas {
      * *****e_tilt
      */
 
-    public static void e_tilt(double jd_tdb, short accuracy,
+    public static void e_tilt(double jd_tdb, int accuracy,
                 DoubleP mobl, DoubleP tobl, DoubleP ee, DoubleP dpsi,
                 DoubleP deps)
 /*
@@ -4345,11 +4345,11 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static short accuracy_last = 0;
+        short accuracy_last = 0;
         short acc_diff;
 
-        static double jd_last = 0.0;
-        static double dp, de, c_terms;
+        double jd_last = 0.0;
+        double dp, de, c_terms;
         double t, d_psi, d_eps, mean_ob, true_ob, eq_eq;
 
 /*
@@ -4425,11 +4425,11 @@ public class Novas {
    Set output values.
 */
 
-        *dpsi = d_psi;
-        *deps = d_eps;
-        *ee = eq_eq;
-        *mobl = mean_ob;
-        *tobl = true_ob;
+        dpsi.v = d_psi;
+        deps.v = d_eps;
+        ee.v = eq_eq;
+        mobl.v = mean_ob;
+        tobl.v = true_ob;
 
         return;
     }
@@ -5103,7 +5103,6 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static short compute_matrix = 1;
 
 /*
    'xi0', 'eta0', and 'da0' are ICRS frame biases in arcseconds taken
@@ -5113,7 +5112,7 @@ public class Novas {
         final double xi0 = -0.0166170;
         final double eta0 = -0.0068192;
         final double da0 = -0.01460;
-        static double xx, yx, zx, xy, yy, zy, xz, yz, zz;
+        double xx, yx, zx, xy, yy, zy, xz, yz, zz;
 
 /*
    Compute elements of rotation matrix to first order the first time
@@ -5121,27 +5120,24 @@ public class Novas {
    not recomputed.
 */
 
-        if (compute_matrix == 1) {
-            xx = 1.0;
-            yx = -da0 * ASEC2RAD;
-            zx = xi0 * ASEC2RAD;
-            xy = da0 * ASEC2RAD;
-            yy = 1.0;
-            zy = eta0 * ASEC2RAD;
-            xz = -xi0 * ASEC2RAD;
-            yz = -eta0 * ASEC2RAD;
-            zz = 1.0;
+        xx = 1.0;
+        yx = -da0 * ASEC2RAD;
+        zx = xi0 * ASEC2RAD;
+        xy = da0 * ASEC2RAD;
+        yy = 1.0;
+        zy = eta0 * ASEC2RAD;
+        xz = -xi0 * ASEC2RAD;
+        yz = -eta0 * ASEC2RAD;
+        zz = 1.0;
 
 /*
-   Include second-order corrections to diagonal elements.
+Include second-order corrections to diagonal elements.
 */
 
-            xx = 1.0 - 0.5 * (yx * yx + zx * zx);
-            yy = 1.0 - 0.5 * (yx * yx + zy * zy);
-            zz = 1.0 - 0.5 * (zy * zy + zx * zx);
+        xx = 1.0 - 0.5 * (yx * yx + zx * zx);
+        yy = 1.0 - 0.5 * (yx * yx + zy * zy);
+        zz = 1.0 - 0.5 * (zy * zy + zx * zx);
 
-            compute_matrix = 0;
-        }
 
 /*
    Perform the rotation in the sense specified by 'direction'.
@@ -5398,11 +5394,19 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static double t_last = 0;
-        static double gast, fac;
-        static short first_time = 1;
+        double t_last = 0;
+        double gast=0, fac=0;
+        short first_time = 1;
 
-        double x, secdif, gmst, x1, x2, x3, x4, eqeq, jd_tdb, jd_ut1;
+        DoubleP x=new DoubleP();
+        DoubleP secdif=new DoubleP();
+        DoubleP gmst=new DoubleP();
+        DoubleP x1=new DoubleP();
+        DoubleP x2=new DoubleP();
+        DoubleP x3=new DoubleP();
+        DoubleP x4=new DoubleP();
+        DoubleP eqeq=new DoubleP();
+        double jd_tdb, jd_ut1;
         double[] pos1=new double[ 3];
         double[] vel1=new double[3];
         double[] pos2=new double[3];
@@ -5424,7 +5428,7 @@ public class Novas {
 
         jd_tdb = jd_tt;
         tdb2tt(jd_tdb, x,secdif);
-        jd_tdb = jd_tt + secdif / 86400.0;
+        jd_tdb = jd_tt + secdif.v / 86400.0;
 
         switch (obs.where) {
 
@@ -5440,7 +5444,7 @@ public class Novas {
                 vel[1] = 0.0;
                 vel[2] = 0.0;
                 return (error = 0);
-            break;
+            //break;
 
 /*
    Other two cases: Get geocentric position and velocity vectors of
@@ -5459,7 +5463,7 @@ public class Novas {
                 if (abs(jd_ut1 - t_last) > 1.0e-8) {
                     sidereal_time(jd_ut1, 0.0, delta_t, 0, 1, accuracy, gmst);
                     e_tilt(jd_tdb, accuracy, x1,x2,eqeq,x3,x4);
-                    gast = gmst + eqeq / 3600.0;
+                    gast = gmst.v + eqeq.v / 3600.0;
                     t_last = jd_ut1;
                 }
 
@@ -5467,7 +5471,7 @@ public class Novas {
    Function 'terra' does the hard work, given sidereal time.
 */
 
-                terra( & obs.on_surf, gast, pos1, vel1);
+                terra( obs.on_surf, gast, pos1, vel1);
                 break;
 
 /*
@@ -5480,10 +5484,7 @@ public class Novas {
    Convert units to AU and AU/day.
 */
 
-                if (first_time) {
-                    fac = AU_KM / 86400.0;
-                    first_time = 0;
-                }
+                fac = AU_KM / 86400.0;
 
                 pos1[0] = obs.near_earth.sc_pos[0] / AU_KM;
                 pos1[1] = obs.near_earth.sc_pos[1] / AU_KM;
@@ -5634,7 +5635,7 @@ public class Novas {
         do {
             if (iter > 10) {
                 error = 1;
-                *tlight = 0.0;
+                tlight.v = 0.0;
                 break;
             }
 
@@ -5647,13 +5648,13 @@ public class Novas {
 
             if (error != 0) {
                 error += 10;
-                *tlight = 0.0;
+                tlight.v = 0.0;
                 break;
             }
 
             bary2obs(pos1, pos_obs, pos, tlight);
 
-            t3 = t1 -*tlight;
+            t3 = t1 -tlight.v;
             iter++;
         } while (abs(t3 - t2) > tol);
 
@@ -5861,8 +5862,8 @@ public class Novas {
             10, 5, 6, 11, 2, 7, 8
         } ;
 
-        static short first_time = 1;
-        static short nbodies_last = 0;
+        short first_time = 1;
+        short nbodies_last = 0;
 
         int error = 0;
         short nbodies, i;
@@ -5871,7 +5872,8 @@ public class Novas {
         double[] pbody=new double[3];
         double[] vbody=new double[3];
         double[] pbodyo=new double[3];
-        double tlt, x, dlt, tclose;
+        double tlt, dlt, tclose;
+        DoubleP x=new DoubleP();
 
         cat_entry dummy_star=new cat_entry();
 
@@ -6356,10 +6358,9 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static short first_call = 1;
         short i;
 
-        static double c2, toms, toms2;
+        double c2, toms, toms2;
         double ra, dec, radvel, posmag, v2, vo2, r, phigeo, phisun, rel, rar,
                dcr, cosdec, zc, kv, zb1, kvobs, zobs1;
         double[] uk=new double[3];
@@ -6369,13 +6370,10 @@ public class Novas {
    Set up local constants the first time this function is called.
 */
 
-        if (first_call) {
-            c2 = C * C;
-            toms = AU / 86400.0;
-            toms2 = toms * toms;
+        c2 = C * C;
+        toms = AU / 86400.0;
+        toms2 = toms * toms;
 
-            first_call = 0;
-        }
 
 /*
    Initialize variables needed for radial velocity calculation.
@@ -6537,7 +6535,7 @@ public class Novas {
    Convert observed radial velocity measure to kilometers/second.
 */
 
-        *rv = (zobs1 - 1.0) * C / 1000.0;
+        rv[0] = (zobs1 - 1.0) * C / 1000.0;
 
         return;
     }
@@ -6621,11 +6619,9 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static short first_time = 1;
         int error = 0;
 
-        static double t_last = 0.0;
-        static double xx, yx, zx, xy, yy, zy, xz, yz, zz;
+        double xx, yx, zx, xy, yy, zy, xz, yz, zz;
         double eps0 = 84381.406;
         double t, psia, omegaa, chia, sa, ca, sb, cb, sc, cc, sd, cd;
 
@@ -6645,7 +6641,6 @@ public class Novas {
         if (jd_tdb2 == T0)
             t = -t;
 
-        if ((abs(t - t_last) >= 1.0e-15) || (first_time == 1)) {
 
 /*
    Numerical coefficients of psi_a, omega_a, and chi_a, along with
@@ -6653,55 +6648,51 @@ public class Novas {
    Capitaine et al. (2003), eqs. (4), (37), & (39).
 */
 
-            psia = ((((-0.0000000951 * t
-                    + 0.000132851) * t
-                    - 0.00114045) * t
-                    - 1.0790069) * t
-                    + 5038.481507) * t;
+        psia = ((((-0.0000000951 * t
+                + 0.000132851) * t
+                - 0.00114045) * t
+                - 1.0790069) * t
+                + 5038.481507) * t;
 
-            omegaa = ((((+0.0000003337 * t
-                    - 0.000000467) * t
-                    - 0.00772503) * t
-                    + 0.0512623) * t
-                    - 0.025754) * t + eps0;
+        omegaa = ((((+0.0000003337 * t
+                - 0.000000467) * t
+                - 0.00772503) * t
+                + 0.0512623) * t
+                - 0.025754) * t + eps0;
 
-            chia = ((((-0.0000000560 * t
-                    + 0.000170663) * t
-                    - 0.00121197) * t
-                    - 2.3814292) * t
-                    + 10.556403) * t;
+        chia = ((((-0.0000000560 * t
+                + 0.000170663) * t
+                - 0.00121197) * t
+                - 2.3814292) * t
+                + 10.556403) * t;
 
-            eps0 = eps0 * ASEC2RAD;
-            psia = psia * ASEC2RAD;
-            omegaa = omegaa * ASEC2RAD;
-            chia = chia * ASEC2RAD;
+        eps0 = eps0 * ASEC2RAD;
+        psia = psia * ASEC2RAD;
+        omegaa = omegaa * ASEC2RAD;
+        chia = chia * ASEC2RAD;
 
-            sa = sin(eps0);
-            ca = cos(eps0);
-            sb = sin(-psia);
-            cb = cos(-psia);
-            sc = sin(-omegaa);
-            cc = cos(-omegaa);
-            sd = sin(chia);
-            cd = cos(chia);
+        sa = sin(eps0);
+        ca = cos(eps0);
+        sb = sin(-psia);
+        cb = cos(-psia);
+        sc = sin(-omegaa);
+        cc = cos(-omegaa);
+        sd = sin(chia);
+        cd = cos(chia);
 /*
-   Compute elements of precession rotation matrix equivalent to
-   R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
+Compute elements of precession rotation matrix equivalent to
+R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
 */
 
-            xx = cd * cb - sb * sd * cc;
-            yx = cd * sb * ca + sd * cc * cb * ca - sa * sd * sc;
-            zx = cd * sb * sa + sd * cc * cb * sa + ca * sd * sc;
-            xy = -sd * cb - sb * cd * cc;
-            yy = -sd * sb * ca + cd * cc * cb * ca - sa * cd * sc;
-            zy = -sd * sb * sa + cd * cc * cb * sa + ca * cd * sc;
-            xz = sb * sc;
-            yz = -sc * cb * ca - sa * cc;
-            zz = -sc * cb * sa + cc * ca;
-
-            t_last = t;
-            first_time = 0;
-        }
+        xx = cd * cb - sb * sd * cc;
+        yx = cd * sb * ca + sd * cc * cb * ca - sa * sd * sc;
+        zx = cd * sb * sa + sd * cc * cb * sa + ca * sd * sc;
+        xy = -sd * cb - sb * cd * cc;
+        yy = -sd * sb * ca + cd * cc * cb * ca - sa * cd * sc;
+        zy = -sd * sb * sa + cd * cc * cb * sa + ca * cd * sc;
+        xz = sb * sc;
+        yz = -sc * cb * ca - sa * cc;
+        zz = -sc * cb * sa + cc * ca;
 
         if (jd_tdb2 == T0) {
 
@@ -6794,20 +6785,25 @@ public class Novas {
 ------------------------------------------------------------------------
 */ {
         double cobm, sobm, cobt, sobt, cpsi, spsi, xx, yx, zx, xy, yy, zy,
-                xz, yz, zz, oblm, oblt, eqeq, psi, eps;
+                xz, yz, zz;
+        DoubleP oblm=new DoubleP();
+        DoubleP oblt=new DoubleP();
+        DoubleP eqeq=new DoubleP();
+        DoubleP psi=new DoubleP();
+        DoubleP eps=new DoubleP();
 
 /*
    Call 'e_tilt' to get the obliquity and nutation angles.
 */
 
-        e_tilt(jd_tdb, accuracy, & oblm,&oblt,&eqeq,&psi,&eps);
+        e_tilt(jd_tdb, accuracy, oblm,oblt,eqeq,psi,eps);
 
-        cobm = cos(oblm * DEG2RAD);
-        sobm = sin(oblm * DEG2RAD);
-        cobt = cos(oblt * DEG2RAD);
-        sobt = sin(oblt * DEG2RAD);
-        cpsi = cos(psi * ASEC2RAD);
-        spsi = sin(psi * ASEC2RAD);
+        cobm = cos(oblm.v * DEG2RAD);
+        sobm = sin(oblm.v * DEG2RAD);
+        cobt = cos(oblt.v * DEG2RAD);
+        sobt = sin(oblt.v * DEG2RAD);
+        cpsi = cos(psi.v * ASEC2RAD);
+        spsi = sin(psi.v * ASEC2RAD);
 
 /*
    Nutation rotation matrix follows.
@@ -7617,9 +7613,9 @@ public class Novas {
 /********cio_location */
 
 
-    public static int cio_location(double jd_tdb, short accuracy,
+    public static int cio_location(double jd_tdb, int accuracy,
 
-                     DoubleP ra_cio, short*ref_sys)
+                     DoubleP ra_cio, IntP ref_sys)
 /*
 ------------------------------------------------------------------------
 
@@ -7688,132 +7684,133 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static short first_call = 1;
-        static short ref_sys_last = 0;
-        static short use_file = 0;
-        int error = 0;
-
-        long int n_pts = 6;
-        long int i, j;
-
-        static double t_last = 0.0;
-        static double ra_last;
-        double p, eq_origins;
-
-        size_t cio_size;
-
-        static ra_of_cio*cio;
-
-        static FILE*cio_file;
-
-/*
-   Check if the input external binary file exists and can be read.
-*/
-
-        if (first_call) {
-            if ((cio_file = fopen("cio_ra.bin", "rb")) == NULL) {
-                use_file = 0;
-            } else {
-                use_file = 1;
-                fclose(cio_file);
-            }
-        }
-
-/*
-   Check if previously computed RA value can be used.
-*/
-
-        if ((abs(jd_tdb - t_last) <= 1.0e-8)) {
-            ra_cio.v = ra_last;
-            *ref_sys = ref_sys_last;
-            return (error = 0);
-        }
-
-/*
-   Compute the RA of the CIO.
-*/
-
-        switch (use_file) {
-
-/*
-   -----------------------------
-   Interpolate values from file.
-   -----------------------------
-*/
-
-            case 1:
-
-/*
-   Allocate memory for the array 'cio'.  This array contains the values
-   to be interpolated, extracted from the CIO file.
-*/
-
-                if (first_call) {
-                    cio_size = sizeof(ra_of_cio);
-                    cio = (ra_of_cio *) calloc((size_t) n_pts, cio_size);
-                    if (cio == NULL)
-                        return (error = 1);
-                    else
-                        first_call = 0;
-                }
-
-/*
-   Get array of values to interpolate.
-*/
-
-                if ((error = cio_array(jd_tdb, n_pts, cio)) != 0) {
-                    ra_cio.v = 0.0;
-                    return (error += 10);
-                }
-
-/*
-   Perform Lagrangian interpolation for the RA at 'tdb_jd'.
-*/
-
-                ra_cio.v = 0.0;
-                for (j = 0L; j < n_pts; j++) {
-                    p = 1.0;
-                    for (i = 0L; i < n_pts; i++) {
-                        if (i != j)
-                            p *= ((jd_tdb - cio[i].jd_tdb) /
-                                    (cio[j].jd_tdb - cio[i].jd_tdb));
-                    }
-                    ra_cio.v += (p * cio[j].ra_cio);
-                }
-
-                ra_cio.v /= 54000.0;
-                *ref_sys = 1;
-
-                break;
-
-/*
-   -------------------------
-   Use internal computation.
-   -------------------------
-*/
-
-            case 0:
-
-/*
-   Compute equation of the origins.
-*/
-
-                if (first_call)
-                    first_call = 0;
-
-                eq_origins = ira_equinox(jd_tdb, 1, accuracy);
-
-                ra_cio.v = -eq_origins;
-                *ref_sys = 2;
-
-                break;
-        }
-
-        t_last = jd_tdb;
-        ra_last =ra_cio.v;
-        ref_sys_last =*ref_sys;
-
-        return (error);
+//        static short first_call = 1;
+//        static short ref_sys_last = 0;
+//        static short use_file = 0;
+//        int error = 0;
+//
+//        long int n_pts = 6;
+//        long int i, j;
+//
+//        static double t_last = 0.0;
+//        static double ra_last;
+//        double p, eq_origins;
+//
+//        size_t cio_size;
+//
+//        static ra_of_cio*cio;
+//
+//        static FILE*cio_file;
+//
+///*
+//   Check if the input external binary file exists and can be read.
+//*/
+//
+//        if (first_call) {
+//            if ((cio_file = fopen("cio_ra.bin", "rb")) == NULL) {
+//                use_file = 0;
+//            } else {
+//                use_file = 1;
+//                fclose(cio_file);
+//            }
+//        }
+//
+///*
+//   Check if previously computed RA value can be used.
+//*/
+//
+//        if ((abs(jd_tdb - t_last) <= 1.0e-8)) {
+//            ra_cio.v = ra_last;
+//            *ref_sys = ref_sys_last;
+//            return (error = 0);
+//        }
+//
+///*
+//   Compute the RA of the CIO.
+//*/
+//
+//        switch (use_file) {
+//
+///*
+//   -----------------------------
+//   Interpolate values from file.
+//   -----------------------------
+//*/
+//
+//            case 1:
+//
+///*
+//   Allocate memory for the array 'cio'.  This array contains the values
+//   to be interpolated, extracted from the CIO file.
+//*/
+//
+//                if (first_call) {
+//                    cio_size = sizeof(ra_of_cio);
+//                    cio = (ra_of_cio *) calloc((size_t) n_pts, cio_size);
+//                    if (cio == NULL)
+//                        return (error = 1);
+//                    else
+//                        first_call = 0;
+//                }
+//
+///*
+//   Get array of values to interpolate.
+//*/
+//
+//                if ((error = cio_array(jd_tdb, n_pts, cio)) != 0) {
+//                    ra_cio.v = 0.0;
+//                    return (error += 10);
+//                }
+//
+///*
+//   Perform Lagrangian interpolation for the RA at 'tdb_jd'.
+//*/
+//
+//                ra_cio.v = 0.0;
+//                for (j = 0L; j < n_pts; j++) {
+//                    p = 1.0;
+//                    for (i = 0L; i < n_pts; i++) {
+//                        if (i != j)
+//                            p *= ((jd_tdb - cio[i].jd_tdb) /
+//                                    (cio[j].jd_tdb - cio[i].jd_tdb));
+//                    }
+//                    ra_cio.v += (p * cio[j].ra_cio);
+//                }
+//
+//                ra_cio.v /= 54000.0;
+//                *ref_sys = 1;
+//
+//                break;
+//
+///*
+//   -------------------------
+//   Use internal computation.
+//   -------------------------
+//*/
+//
+//            case 0:
+//
+///*
+//   Compute equation of the origins.
+//*/
+//
+//                if (first_call)
+//                    first_call = 0;
+//
+//                eq_origins = ira_equinox(jd_tdb, 1, accuracy);
+//
+//                ra_cio.v = -eq_origins;
+//                *ref_sys = 2;
+//
+//                break;
+//        }
+//
+//        t_last = jd_tdb;
+//        ra_last =ra_cio.v;
+//        ref_sys_last =*ref_sys;
+//
+//        return (error);
+        return 1; //not implemented
     }
 
 /********cio_basis */
@@ -8128,237 +8125,238 @@ public class Novas {
 
 ------------------------------------------------------------------------
 */ {
-        static short first_call = 1;
-        int error = 0;
-
-        static long last_index_rec = -50L;
-        static long last_n_pts = 0L;
-        static long header_size, record_size, n_recs;
-        long min_pts = 2;
-        long max_pts = 20;
-        long del_n_pts, index_rec, half_int, lo_limit, hi_limit,
-                del_index, abs_del_index, bytes_to_lo, n_swap, n_read, i, j;
-
-        static double jd_beg, jd_end, t_int,*t,ra.v;
-        double t_temp, ra_temp;
-
-        static size_t double_size, long_size;
-
-        static FILE*cio_file;
-
-/*
-   Set the sizes of the file header and data records, open the CIO file,
-   and read the file header on the first call to this function.
-*/
-
-        if (first_call) {
-            double_size = sizeof(double);
-            long_size = sizeof(long int);
-            header_size = (long) ((size_t) 3 * double_size + long_size);
-            record_size = (long) ((size_t) 2 * double_size);
-
-/*
-   Open the input (binary, random-access) file.
-*/
-
-            if ((cio_file = fopen("cio_ra.bin", "rb")) == NULL)
-                return (error = 1);
-
-/*
-   Read the file header.
-*/
-
-            fread( & jd_beg, double_size, (size_t) 1, cio_file);
-            fread( & jd_end, double_size, (size_t) 1, cio_file);
-            fread( & t_int, double_size, (size_t) 1, cio_file);
-            fread( & n_recs, long_size, (size_t) 1, cio_file);
-        }
-
-/*
-   Check the input data against limits.
-*/
-
-        if ((jd_tdb < jd_beg) || (jd_tdb > jd_end))
-            return (error = 2);
-
-        if ((n_pts < min_pts) || (n_pts > max_pts))
-            return (error = 3);
-
-/*
-   Calculate the difference between the current value of 'n_pts' and
-   the last value of 'n_pts'.
-*/
-
-        del_n_pts = abs(n_pts - last_n_pts);
-
-/*
-   Allocate memory for the 't' and 'ra' arrays.
-*/
-
-        if (del_n_pts != 0L) {
-            if (!first_call) {
-                free(t);
-                free(ra);
-            }
-
-            t = (DoubleP )calloc((size_t) n_pts, double_size);
-            if (t == NULL) {
-                fclose(cio_file);
-                return (error = 4);
-            }
-
-            ra = (DoubleP )calloc((size_t) n_pts, double_size);
-            if (ra == NULL) {
-                free(t);
-                fclose(cio_file);
-                return (error = 5);
-            }
-
-            first_call = 0;
-        }
-
-/*
-   Calculate the record number of the record immediately preceding
-   the date of interest: the "index record".
-*/
-
-        index_rec = (long )((jd_tdb - jd_beg) / t_int) + 1L;
-
-/*
-   Test the range of 'n_pts' values centered on 'index_rec' to be sure
-   the range of values requested falls within the file limits.
-*/
-
-        half_int = (n_pts / 2L) - 1L;
-        lo_limit = index_rec - half_int;
-        hi_limit = index_rec + (n_pts - half_int - 1L);
-
-        if ((lo_limit < 1L) || (hi_limit > n_recs))
-            return (error = 6);
-
-/*
-   Compute the number of bytes from the beginning of the file to
-   the 'lo_limit'.
-*/
-
-        bytes_to_lo = header_size + (lo_limit - 1L) * record_size;
-
-/*
-   Compare the current index record with the previous index record.
-*/
-
-        del_index = index_rec - last_index_rec;
-        abs_del_index = abs(del_index);
-
-/*
-   Determine the file read strategy.
-*/
-
-/*
-   Case 1: The input value of 'n_pts' changed since the last entry,
-   or there are no data in the current arrays that can be re-used in the
-   new arrays.  In this case, read all new data points into the arrays.
-*/
-
-        if ((abs_del_index > n_pts) || (del_n_pts != 0)) {
-            fseek(cio_file, bytes_to_lo, SEEK_SET);
-
-            for (i = 0L; i < n_pts; i++) {
-                fread( & t[i], double_size, (size_t) 1, cio_file);
-                fread( & ra[i], double_size, (size_t) 1, cio_file);
-            }
-        }
-
-/*
-   Case 2: The new index is close enough to the previous index that
-   there are some data in the current arrays that can be re-used
-   in the new arrays.  The remaining data will be read from the CIO
-   file.
-
-   Note that if the new index is the same as the previous index (i.e.,
-   'del_index' == 0), neither Case 2a nor 2b is satisfied, and the
-   program flow goes directly to load the output arrays with the same
-   values as in the current arrays.
-*/
-
-        else if ((abs_del_index <= n_pts) && (del_n_pts == 0)) {
-            n_swap = abs(n_pts - abs_del_index);
-            n_read = abs_del_index;
-
-/*
-   Case 2a: The new index is less than the previous one.  Put the "old"
-   data at the end of the new arrays, and read "new" data into the
-   beginning of the new arrays.
-*/
-
-            if (del_index < 0L) {
-                for (i = 0L; i < n_swap; i++) {
-                    t_temp = t[i];
-                    ra_temp = ra[i];
-
-                    j = i + abs_del_index;
-                    t[j] = t_temp;
-                    ra[j] = ra_temp;
-                }
-
-                fseek(cio_file, bytes_to_lo, SEEK_SET);
-
-                for (i = 0L; i < n_read; i++) {
-                    fread( & t[i], double_size, (size_t) 1, cio_file);
-                    fread( & ra[i], double_size, (size_t) 1, cio_file);
-                }
-            }
-
-/*
-   Case 2b: The new index is greater than the previous one.  Put the
-   "old" data at the beginning of the new arrays, and read "new" data
-   into the end of the new arrays.
-*/
-
-            else if (del_index > 0L) {
-                for (i = 0L; i < n_swap; i++) {
-                    j = i + abs_del_index;
-                    t_temp = t[j];
-                    ra_temp = ra[j];
-
-                    t[i] = t_temp;
-                    ra[i] = ra_temp;
-                }
-
-                fseek(cio_file, bytes_to_lo + (n_swap * record_size),
-                        SEEK_SET);
-
-                j = i++;
-                for (i = j; i < n_pts; i++) {
-                    fread( & t[i], double_size, (size_t) 1, cio_file);
-                    fread( & ra[i], double_size, (size_t) 1, cio_file);
-                }
-            }
-        }
-
-/*
-   Load the output 'cio' array with the values in the 't' and 'ra'
-   arrays.
-
-   Note that if the input value of 'n_pts' has not changed since the
-   last entry, all data in the current arrays can be re-used in
-   the new arrays. The if statements above are bypassed and the new
-   arrays are the same as the current arrays.
-*/
-
-        for (i = 0L; i < n_pts; i++) {
-            cio[i].jd_tdb = t[i];
-            cio[i].ra_cio = ra[i];
-        }
-
-/*
-   Set values of 'last_index_rec' and 'last_n_pts'.
-*/
-
-        last_index_rec = index_rec;
-        last_n_pts = n_pts;
-
-        return (error);
+//        static short first_call = 1;
+//        int error = 0;
+//
+//        static long last_index_rec = -50L;
+//        static long last_n_pts = 0L;
+//        static long header_size, record_size, n_recs;
+//        long min_pts = 2;
+//        long max_pts = 20;
+//        long del_n_pts, index_rec, half_int, lo_limit, hi_limit,
+//                del_index, abs_del_index, bytes_to_lo, n_swap, n_read, i, j;
+//
+//        static double jd_beg, jd_end, t_int,*t,ra.v;
+//        double t_temp, ra_temp;
+//
+//        static size_t double_size, long_size;
+//
+//        static FILE*cio_file;
+//
+///*
+//   Set the sizes of the file header and data records, open the CIO file,
+//   and read the file header on the first call to this function.
+//*/
+//
+//        if (first_call) {
+//            double_size = sizeof(double);
+//            long_size = sizeof(long int);
+//            header_size = (long) ((size_t) 3 * double_size + long_size);
+//            record_size = (long) ((size_t) 2 * double_size);
+//
+///*
+//   Open the input (binary, random-access) file.
+//*/
+//
+//            if ((cio_file = fopen("cio_ra.bin", "rb")) == NULL)
+//                return (error = 1);
+//
+///*
+//   Read the file header.
+//*/
+//
+//            fread( & jd_beg, double_size, (size_t) 1, cio_file);
+//            fread( & jd_end, double_size, (size_t) 1, cio_file);
+//            fread( & t_int, double_size, (size_t) 1, cio_file);
+//            fread( & n_recs, long_size, (size_t) 1, cio_file);
+//        }
+//
+///*
+//   Check the input data against limits.
+//*/
+//
+//        if ((jd_tdb < jd_beg) || (jd_tdb > jd_end))
+//            return (error = 2);
+//
+//        if ((n_pts < min_pts) || (n_pts > max_pts))
+//            return (error = 3);
+//
+///*
+//   Calculate the difference between the current value of 'n_pts' and
+//   the last value of 'n_pts'.
+//*/
+//
+//        del_n_pts = abs(n_pts - last_n_pts);
+//
+///*
+//   Allocate memory for the 't' and 'ra' arrays.
+//*/
+//
+//        if (del_n_pts != 0L) {
+//            if (!first_call) {
+//                free(t);
+//                free(ra);
+//            }
+//
+//            t = (DoubleP )calloc((size_t) n_pts, double_size);
+//            if (t == NULL) {
+//                fclose(cio_file);
+//                return (error = 4);
+//            }
+//
+//            ra = (DoubleP )calloc((size_t) n_pts, double_size);
+//            if (ra == NULL) {
+//                free(t);
+//                fclose(cio_file);
+//                return (error = 5);
+//            }
+//
+//            first_call = 0;
+//        }
+//
+///*
+//   Calculate the record number of the record immediately preceding
+//   the date of interest: the "index record".
+//*/
+//
+//        index_rec = (long )((jd_tdb - jd_beg) / t_int) + 1L;
+//
+///*
+//   Test the range of 'n_pts' values centered on 'index_rec' to be sure
+//   the range of values requested falls within the file limits.
+//*/
+//
+//        half_int = (n_pts / 2L) - 1L;
+//        lo_limit = index_rec - half_int;
+//        hi_limit = index_rec + (n_pts - half_int - 1L);
+//
+//        if ((lo_limit < 1L) || (hi_limit > n_recs))
+//            return (error = 6);
+//
+///*
+//   Compute the number of bytes from the beginning of the file to
+//   the 'lo_limit'.
+//*/
+//
+//        bytes_to_lo = header_size + (lo_limit - 1L) * record_size;
+//
+///*
+//   Compare the current index record with the previous index record.
+//*/
+//
+//        del_index = index_rec - last_index_rec;
+//        abs_del_index = abs(del_index);
+//
+///*
+//   Determine the file read strategy.
+//*/
+//
+///*
+//   Case 1: The input value of 'n_pts' changed since the last entry,
+//   or there are no data in the current arrays that can be re-used in the
+//   new arrays.  In this case, read all new data points into the arrays.
+//*/
+//
+//        if ((abs_del_index > n_pts) || (del_n_pts != 0)) {
+//            fseek(cio_file, bytes_to_lo, SEEK_SET);
+//
+//            for (i = 0L; i < n_pts; i++) {
+//                fread( & t[i], double_size, (size_t) 1, cio_file);
+//                fread( & ra[i], double_size, (size_t) 1, cio_file);
+//            }
+//        }
+//
+///*
+//   Case 2: The new index is close enough to the previous index that
+//   there are some data in the current arrays that can be re-used
+//   in the new arrays.  The remaining data will be read from the CIO
+//   file.
+//
+//   Note that if the new index is the same as the previous index (i.e.,
+//   'del_index' == 0), neither Case 2a nor 2b is satisfied, and the
+//   program flow goes directly to load the output arrays with the same
+//   values as in the current arrays.
+//*/
+//
+//        else if ((abs_del_index <= n_pts) && (del_n_pts == 0)) {
+//            n_swap = abs(n_pts - abs_del_index);
+//            n_read = abs_del_index;
+//
+///*
+//   Case 2a: The new index is less than the previous one.  Put the "old"
+//   data at the end of the new arrays, and read "new" data into the
+//   beginning of the new arrays.
+//*/
+//
+//            if (del_index < 0L) {
+//                for (i = 0L; i < n_swap; i++) {
+//                    t_temp = t[i];
+//                    ra_temp = ra[i];
+//
+//                    j = i + abs_del_index;
+//                    t[j] = t_temp;
+//                    ra[j] = ra_temp;
+//                }
+//
+//                fseek(cio_file, bytes_to_lo, SEEK_SET);
+//
+//                for (i = 0L; i < n_read; i++) {
+//                    fread( & t[i], double_size, (size_t) 1, cio_file);
+//                    fread( & ra[i], double_size, (size_t) 1, cio_file);
+//                }
+//            }
+//
+///*
+//   Case 2b: The new index is greater than the previous one.  Put the
+//   "old" data at the beginning of the new arrays, and read "new" data
+//   into the end of the new arrays.
+//*/
+//
+//            else if (del_index > 0L) {
+//                for (i = 0L; i < n_swap; i++) {
+//                    j = i + abs_del_index;
+//                    t_temp = t[j];
+//                    ra_temp = ra[j];
+//
+//                    t[i] = t_temp;
+//                    ra[i] = ra_temp;
+//                }
+//
+//                fseek(cio_file, bytes_to_lo + (n_swap * record_size),
+//                        SEEK_SET);
+//
+//                j = i++;
+//                for (i = j; i < n_pts; i++) {
+//                    fread( & t[i], double_size, (size_t) 1, cio_file);
+//                    fread( & ra[i], double_size, (size_t) 1, cio_file);
+//                }
+//            }
+//        }
+//
+///*
+//   Load the output 'cio' array with the values in the 't' and 'ra'
+//   arrays.
+//
+//   Note that if the input value of 'n_pts' has not changed since the
+//   last entry, all data in the current arrays can be re-used in
+//   the new arrays. The if statements above are bypassed and the new
+//   arrays are the same as the current arrays.
+//*/
+//
+//        for (i = 0L; i < n_pts; i++) {
+//            cio[i].jd_tdb = t[i];
+//            cio[i].ra_cio = ra[i];
+//        }
+//
+///*
+//   Set values of 'last_index_rec' and 'last_n_pts'.
+//*/
+//
+//        last_index_rec = index_rec;
+//        last_n_pts = n_pts;
+//
+//        return (error);
+        return 1; //not implemented
     }
 
     /**
@@ -8770,14 +8768,14 @@ public class Novas {
 */ {
         final double epoch_hip = 2448349.0625;
 
-        cat_entry scratch;
+        cat_entry scratch=new cat_entry();
 
 /*
    Set up a "scratch" catalog entry containing Hipparcos data in
    "NOVAS units."
 */
 
-        strcpy(scratch.starname, hipparcos.starname);
+        scratch.starname=hipparcos.starname;
         scratch.starnumber = hipparcos.starnumber;
         scratch.dec = hipparcos.dec;
         scratch.promora = hipparcos.promora;
@@ -8785,7 +8783,7 @@ public class Novas {
         scratch.parallax = hipparcos.parallax;
         scratch.radialvelocity = hipparcos.radialvelocity;
 
-        strcpy(scratch.catalog, "SCR");
+        scratch.catalog="SCR";
 
 /*
    Convert right ascension from degrees to hours.
@@ -8804,9 +8802,9 @@ public class Novas {
 
 /********transform_cat */
 
-    public static int transform_cat(short option, double date_incat,
+    public static int transform_cat(int option, double date_incat,
                       cat_entry incat, double date_newcat,
-                      char newcat_id[SIZE_OF_CAT_NAME],
+                      String newcat_id,
 
                       cat_entry newcat)
 /*
@@ -9113,17 +9111,14 @@ public class Novas {
    entry.
 */
 
-        if ((short)strlen(newcat_id) > SIZE_OF_CAT_NAME - 1)
-        return (2);
-        else
-        strcpy(newcat.catalog, newcat_id);
+        newcat.catalog=newcat_id;
 
 /*
    Copy unchanged quantities from the input catalog entry to the
    transformed catalog entry.
 */
 
-        strcpy(newcat.starname, incat.starname);
+        newcat.starname=incat.starname;
         newcat.starnumber = incat.starnumber;
 
         return (error);
@@ -9251,13 +9246,13 @@ public class Novas {
    Angle of object wrt limb is difference in zenith distances.
 */
 
-        *limb_ang = (zdlim - zdobj) * RAD2DEG;
+        limb_ang.v = (zdlim - zdobj) * RAD2DEG;
 
 /*
    Nadir angle of object as a fraction of angular radius of limb.
 */
 
-        *nadir_ang = (pi - zdobj) / aprad;
+        nadir_ang.v = (pi - zdobj) / aprad;
 
         return;
     }
@@ -9443,7 +9438,7 @@ public class Novas {
 
     public static void cal_date(double tjd,
 
-                  short*year, short*month, short*day,
+                  IntP year, IntP month, IntP day,
                   DoubleP hour)
 /*
 ------------------------------------------------------------------------
@@ -9514,12 +9509,12 @@ public class Novas {
         m = 4000L * (k + 1L) / 1461001L;
         k = k - 1461L * m / 4L + 31L;
 
-        *month = (short)(80L * k / 2447L);
-        *day = (short)(k - 2447L * (long )*month / 80L);
-        k = (long )*month / 11L;
+        month.v = (short)(80L * k / 2447L);
+        day.v = (short)(k - 2447L * (long )month.v / 80L);
+        k = (long )month.v / 11L;
 
-        *month = (short)((long )*month + 2L - 12L * k);
-        *year = (short)(100L * (n - 49L) + m + k);
+        month.v = (short)((long )month.v + 2L - 12L * k);
+        year.v = (short)(100L * (n - 49L) + m + k);
 
         return;
     }
@@ -9812,12 +9807,7 @@ public class Novas {
         if ((short)(name.length()) > SIZE_OF_OBJ_NAME - 1)
         return (error = 5);
 
-        for (i = 0; i < SIZE_OF_OBJ_NAME - 1; i++) {
-            cel_obj.name[i] = (char) toupper(name[i]);
-            if (name[i] == '\0')
-                break;
-        }
-        cel_obj.name[i] = '\0';
+        cel_obj.name=name.toUpperCase();
 
 /*
    Populate the astrometric-data structure if the object is 'type' = 2.
@@ -10010,9 +10000,9 @@ public class Novas {
             0.0, 0.0, 0.0
         } ;
 
-        in_space sat_state;
+        in_space sat_state=new in_space();
 
-        on_surface surface_loc;
+        on_surface surface_loc=new on_surface();
 
         make_in_space(sat_pos, sat_vel, sat_state);
         make_on_surface(latitude, longitude, height, temperature, pressure,
@@ -10091,9 +10081,9 @@ public class Novas {
             0.0, 0.0, 0.0
         } ;
 
-        in_space sat_state;
+        in_space sat_state=new in_space();
 
-        on_surface surface_loc;
+        on_surface surface_loc=new on_surface();
 
         make_in_space(sat_pos, sat_vel, sat_state);
         make_on_surface(latitude, longitude, height, temperature, pressure,
@@ -10165,9 +10155,9 @@ public class Novas {
         final double temperature = 0.0;
         final double pressure = 0.0;
 
-        in_space sat_state;
+        in_space sat_state=new in_space();
 
-        on_surface surface_loc;
+        on_surface surface_loc=new on_surface();
 
         make_in_space(sc_pos, sc_vel, sat_state);
         make_on_surface(latitude, longitude, height, temperature, pressure,surface_loc);

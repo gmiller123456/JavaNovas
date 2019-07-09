@@ -1702,7 +1702,8 @@ public class Novas {
 */ {
         short first_time = 1;
         int error = 0;
-        short loc, rs, i;
+        short loc, i;
+        IntP rs=new IntP();
 
         double tlast1 = 0.0;
         double tlast2 = 0.0;
@@ -1971,7 +1972,7 @@ public class Novas {
 
                     if ((error = cio_location(jd_tdb, accuracy, r_cio,rs))!=0)
                     return (error += 80);
-                    if ((error = cio_basis(jd_tdb, r_cio.v, rs, accuracy,
+                    if ((error = cio_basis(jd_tdb, r_cio.v, rs.v, accuracy,
                             px, py, pz)) != 0)
                         return (error += 90);
 
@@ -2016,16 +2017,24 @@ public class Novas {
                 (pos1[1] - psb[1]) * (pos1[1] - psb[1]) +
                 (pos1[2] - psb[2]) * (pos1[2] - psb[2]));
 
+        DoubleP temp3=new DoubleP();
+        temp3.v=output.rv;
         rad_vel(cel_object, pos3, vel1, vob, d_obs_geo, d_obs_sun, d_obj_sun,
-                output.rv);
+                temp3);
+        output.rv=temp3.v;
 
 /*
    ---------------------------------------------------------------------
    Finish up.
    ---------------------------------------------------------------------
 */
-
-        vector2radec(pos8, output.ra,output.dec);
+        DoubleP temp1=new DoubleP();
+        DoubleP temp2=new DoubleP();
+        temp1.v=output.ra;
+        temp2.v=output.dec;
+        vector2radec(pos8, temp1,temp2);
+        output.ra=temp1.v;
+        output.dec=temp2.v;
 
         x.v = sqrt(pos8[0] * pos8[0] + pos8[1] * pos8[1] + pos8[2] * pos8[2]);
 
@@ -2040,7 +2049,7 @@ public class Novas {
      * *****equ2gal
      */
 
-    void equ2gal(double rai, double deci, DoubleP glon, DoubleP glat)
+    public static void equ2gal(double rai, double deci, DoubleP glon, DoubleP glat)
 /*
 ------------------------------------------------------------------------
 
@@ -4206,10 +4215,7 @@ Rotation matrix follows.
         double df, df2, phi, sinphi, cosphi, c, s, ach, ash, stlocl, sinst,
                 cosst;
 
-        if (first_entry!=0) {
-            erad_km = ERAD / 1000.0;
-            first_entry = 0;
-        }
+        erad_km = ERAD / 1000.0;
 
 /*
    Compute parameters relating to geodetic to geocentric conversion.
@@ -4345,12 +4351,14 @@ Rotation matrix follows.
 
 ------------------------------------------------------------------------
 */ {
-        short accuracy_last = 0;
-        short acc_diff;
+        int accuracy_last = 0;
+        int acc_diff;
 
         double jd_last = 0.0;
-        double dp, de, c_terms;
+        double c_terms=0;
         double t, d_psi, d_eps, mean_ob, true_ob, eq_eq;
+        DoubleP dp=new DoubleP();
+        DoubleP de=new DoubleP();
 
 /*
    Compute time in Julian centuries from epoch J2000.0.
@@ -4392,8 +4400,8 @@ Rotation matrix follows.
    Apply observed celestial pole offsets.
 */
 
-        d_psi = dp + PSI_COR;
-        d_eps = de + EPS_COR;
+        d_psi = dp.v + PSI_COR;
+        d_eps = de.v + EPS_COR;
 
 /*
    Compute mean obliquity of the ecliptic in arcseconds.
@@ -4602,7 +4610,7 @@ Rotation matrix follows.
      * *****ee_ct
      */
 
-    public static double ee_ct(double jd_high, double jd_low, short accuracy)
+    public static double ee_ct(double jd_high, double jd_low, int accuracy)
 /*
 ------------------------------------------------------------------------
 
@@ -6265,7 +6273,7 @@ Include second-order corrections to diagonal elements.
                  double[]vel_obs, double d_obs_geo, double d_obs_sun,
                  double d_obj_sun,
 
-                 double[]rv)
+                 DoubleP rv)
 /*
 ------------------------------------------------------------------------
 
@@ -6535,7 +6543,7 @@ Include second-order corrections to diagonal elements.
    Convert observed radial velocity measure to kilometers/second.
 */
 
-        rv[0] = (zobs1 - 1.0) * C / 1000.0;
+        rv.v = (zobs1 - 1.0) * C / 1000.0;
 
         return;
     }
@@ -6846,7 +6854,7 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
      * *****nutation_angles
      */
 
-    public static void nutation_angles(double t, short accuracy,
+    public static void nutation_angles(double t, int accuracy,
 
                          DoubleP dpsi, DoubleP deps)
 /*
@@ -7541,12 +7549,15 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
 ------------------------------------------------------------------------
 */ {
         int error = 0;
-        short rs;
+        IntP rs=new IntP();
 
         double[] unitx={
             1.0, 0.0, 0.0
         } ;
-        double jd_tdb, t, secdif, az, r_cio;
+        double jd_tdb,az;
+        DoubleP t=new DoubleP();
+        DoubleP secdif=new DoubleP();
+        DoubleP r_cio=new DoubleP();
         double[] x=new double[ 3];
         double[] y=new double[3];
         double[] z=new double[3];
@@ -7567,7 +7578,7 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
 
         jd_tdb = jd_tt;
         tdb2tt(jd_tdb,t,secdif);
-        jd_tdb = jd_tt + secdif / 86400.0;
+        jd_tdb = jd_tt + secdif.v / 86400.0;
 
 /*
    Obtain the basis vectors, in the GCRS, for the celestial intermediate
@@ -7581,7 +7592,7 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
             return (error += 10);
         }
 
-        if ((error = cio_basis(jd_tdb, r_cio, rs, accuracy, x, y, z)) != 0) {
+        if ((error = cio_basis(jd_tdb, r_cio.v, rs.v, accuracy, x, y, z)) != 0) {
             return (error += 20);
         }
 
@@ -7901,7 +7912,7 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
 
 ------------------------------------------------------------------------
 */ {
-        short ref_sys_last = 0;
+        int ref_sys_last = 0;
         int error = 0;
         short i;
 
@@ -8421,11 +8432,15 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
 
 ------------------------------------------------------------------------
 */ {
-        static short acc_last = 99;
+        short acc_last = 99;
 
-        static double t_last = 0.0;
-        static double eq_eq = 0.0;
-        double t, u, v, w, x, prec_ra, ra_eq;
+        double t_last = 0.0;
+        DoubleP eq_eq = new DoubleP();
+        double t, prec_ra, ra_eq;
+        DoubleP u=new DoubleP();
+        DoubleP v=new DoubleP();
+        DoubleP w=new DoubleP();
+        DoubleP x=new DoubleP();
 
 /*
    Compute time in Julian centuries.
@@ -8445,7 +8460,7 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
                 acc_last = accuracy;
             }
         } else {
-            eq_eq = 0.0;
+            eq_eq.v = 0.0;
         }
 
 /*
@@ -8459,7 +8474,7 @@ R3(chi_a) R1(-omega_a) R3(-psi_a) R1(epsilon_0).
                         + 1.3915817) * t
                         + 4612.156534) * t;
 
-        ra_eq = -(prec_ra / 15.0 + eq_eq) / 3600.0;
+        ra_eq = -(prec_ra / 15.0 + eq_eq.v) / 3600.0;
 
         return (ra_eq);
     }
